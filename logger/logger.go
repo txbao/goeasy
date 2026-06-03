@@ -18,7 +18,7 @@ func New(cfg *config.Config) *Logger {
 	if cfg != nil && cfg.Env == "dev" {
 		level = slog.LevelDebug
 	}
-	service := "goesy"
+	service := "goeasy"
 	if cfg != nil && cfg.AppName != "" {
 		service = cfg.AppName
 	}

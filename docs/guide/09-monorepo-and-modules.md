@@ -5,7 +5,7 @@
 创建项目时务必指定真实模块路径：
 
 ```bat
-.\goesy.exe new ordersvc --module github.com/yourorg/ordersvc
+.\goeasy.exe new ordersvc --module github.com/yourorg/ordersvc
 ```
 
 生成后 `go.mod` 首行为：
@@ -22,15 +22,15 @@ module github.com/yourorg/ordersvc
 
 ```text
 framework/
-├── goesy/           github.com/txbao/goeasy
-├── goesy-cli/       github.com/txbao/goeasy-cli
-└── goesy-cli/demo/ 本地验收工程
+├── goeasy/           github.com/txbao/goeasy
+├── goeasy-cli/       github.com/txbao/goeasy-cli
+└── goeasy-cli/demo/ 本地验收工程
 ```
 
-在 `framework` 根目录执行 `goesy new` 时，CLI 会检测 monorepo 并写入：
+在 `framework` 根目录执行 `goeasy new` 时，CLI 会检测 monorepo 并写入：
 
 ```text
-replace github.com/txbao/goeasy => ../goesy
+replace github.com/txbao/goeasy => ../goeasy
 ```
 
 （实际相对路径以生成时检测结果为准。）
@@ -38,7 +38,7 @@ replace github.com/txbao/goeasy => ../goesy
 也可手动指定：
 
 ```bat
-.\goesy.exe new demo --module github.com/demo/demo --goesy-replace ..\goesy
+.\goeasy.exe new demo --module github.com/demo/demo --goeasy-replace ..\goeasy
 ```
 
 ## 业务独立仓库
@@ -64,14 +64,14 @@ repo/
 └── service-b/go.mod
 ```
 
-每个服务目录内单独执行 `goesy new` 或复制已生成骨架，避免单一 module 路径混乱。
+每个服务目录内单独执行 `goeasy new` 或复制已生成骨架，避免单一 module 路径混乱。
 
 ## 版本对齐
 
 | 组件 | 建议 |
 |------|------|
-| goesy-cli | 团队统一 `go install` 版本 |
-| goesy 运行时 | `go.mod` 与生产环境一致，用 `goesy upgrade framework` 核对 |
+| goeasy-cli | 团队统一 `go install` 版本 |
+| goeasy 运行时 | `go.mod` 与生产环境一致，用 `goeasy upgrade framework` 核对 |
 
 ## 下一步
 

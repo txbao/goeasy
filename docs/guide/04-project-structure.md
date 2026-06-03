@@ -1,12 +1,12 @@
 # 04 项目结构
 
-以 `goesy new` 生成的 DDD Lite 项目为准。
+以 `goeasy new` 生成的 DDD Lite 项目为准。
 
 ## 顶层目录
 
 ```text
 <project>/
-├── cmd/service/           唯一入口：装配 goesy，不写业务逻辑
+├── cmd/service/           唯一入口：装配 goeasy，不写业务逻辑
 ├── internal/              业务与适配（不对外暴露）
 ├── configs/               配置文件
 ├── api/                   契约（proto / openapi）
@@ -75,5 +75,5 @@ flowchart TB
 
 ## 下一步
 
-- 运行时能力：[05 goesy 运行时](05-goesy-runtime.md)
+- 运行时能力：[05 goeasy 运行时](05-goeasy-runtime.md)
 - 分层实践：[07 DDD Lite 实践](07-ddd-lite-practices.md)

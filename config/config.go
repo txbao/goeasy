@@ -147,7 +147,7 @@ func Load(path string) (*Config, error) {
 func MustLoad(path string) *Config {
 	cfg, err := Load(path)
 	if err != nil {
-		panic(fmt.Sprintf("goesy config: %v", err))
+		panic(fmt.Sprintf("goeasy config: %v", err))
 	}
 	return cfg
 }

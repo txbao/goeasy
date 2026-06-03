@@ -1,6 +1,6 @@
-# 05 goesy 运行时
+# 05 goeasy 运行时
 
-goesy 是业务服务在**线上实际依赖**的 Go 库，负责配置、HTTP 引擎、日志、治理、观测与企业公共能力。
+goeasy 是业务服务在**线上实际依赖**的 Go 库，负责配置、HTTP 引擎、日志、治理、观测与企业公共能力。
 
 ## 启动模型
 
@@ -45,28 +45,28 @@ application.Run()
 ## HTTP 与统一响应
 
 - 引擎：**Gin**
-- 统一 JSON 封装：`goesy/response`（与 `interface` 层业务 DTO 分离）
-- 中间件扩展：`goesy/httpx`
+- 统一 JSON 封装：`goeasy/response`（与 `interface` 层业务 DTO 分离）
+- 中间件扩展：`goeasy/httpx`
 
 业务 Handler 建议只做：参数绑定 → 调 Application → 写响应。
 
 ## 错误码
 
-`goesy/errors` 提供 `CodedError`，便于 HTTP 层映射 `code` / `msg`。
+`goeasy/errors` 提供 `CodedError`，便于 HTTP 层映射 `code` / `msg`。
 
 领域错误在 `domain/<m>/errors.go` 定义，应用层转换为对外 DTO 或错误码。
 
 ## 边界提醒
 
-goesy **不包含** User、Order、Payment 等业务实体；这些只在业务 `internal/domain` 中实现。
+goeasy **不包含** User、Order、Payment 等业务实体；这些只在业务 `internal/domain` 中实现。
 
 JWT、Casbin 等提供**引擎级**封装，权限模型与策略仍属业务代码。
 
 ## 延伸阅读
 
-- [goesy 运行时规范](../spec/goesy-runtime-spec.md)
-- [实现路线图](../plans/goesy-runtime-implementation.md)
+- [goeasy 运行时规范](../spec/goeasy-runtime-spec.md)
+- [实现路线图](../plans/goeasy-runtime-implementation.md)
 
 ## 下一步
 
-[06 goesy-cli 命令](06-goesy-cli-commands.md)
+[06 goeasy-cli 命令](06-goeasy-cli-commands.md)

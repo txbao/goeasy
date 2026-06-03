@@ -18,7 +18,7 @@ func New(cfg config.BreakerCfg) *Breaker {
 		return &Breaker{cb: nil}
 	}
 	st := gobreaker.Settings{
-		Name:        "goesy",
+		Name:        "goeasy",
 		MaxRequests: cfg.MaxRequests,
 		Interval:    time.Duration(cfg.IntervalSec) * time.Second,
 		Timeout:     time.Duration(cfg.TimeoutSec) * time.Second,

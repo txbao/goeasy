@@ -1,6 +1,6 @@
 # 08 项目模板
 
-`goesy new` 通过 `--template` 选择项目变体，均基于同一 DDD Lite 骨架，差异主要在配置默认值与 README 说明。
+`goeasy new` 通过 `--template` 选择项目变体，均基于同一 DDD Lite 骨架，差异主要在配置默认值与 README 说明。
 
 ## 可用模板
 
@@ -15,9 +15,9 @@
 ## 使用示例
 
 ```bat
-.\goesy.exe new auth-svc --template auth --module github.com/demo/auth --download=false
-.\goesy.exe new pay-svc --template payment --module github.com/demo/pay
-.\goesy.exe new app --template monolith --module github.com/demo/app
+.\goeasy.exe new auth-svc --template auth --module github.com/demo/auth --download=false
+.\goeasy.exe new pay-svc --template payment --module github.com/demo/pay
+.\goeasy.exe new app --template monolith --module github.com/demo/app
 ```
 
 ## 内嵌 vs 远端
@@ -42,7 +42,7 @@
 
 ```bat
 go install github.com/txbao/goeasy-cli@latest
-goesy upgrade template
+goeasy upgrade template
 ```
 
 已有业务项目不会自动重写；需在业务仓库手工对比模板变更或重新生成模块文件。

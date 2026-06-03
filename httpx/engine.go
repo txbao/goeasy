@@ -32,7 +32,7 @@ func NewEngineWith(opt Options) *gin.Engine {
 	if cfg != nil && cfg.Env == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	service := "goesy"
+	service := "goeasy"
 	if cfg != nil && cfg.AppName != "" {
 		service = cfg.AppName
 	}
@@ -79,7 +79,7 @@ func traceMiddleware() gin.HandlerFunc {
 }
 
 func accessLog(cfg *config.Config) gin.HandlerFunc {
-	service := "goesy"
+	service := "goeasy"
 	if cfg != nil && cfg.AppName != "" {
 		service = cfg.AppName
 	}

@@ -9,14 +9,14 @@
 ### 1. 进入脚手架目录并编译（若尚未编译）
 
 ```bat
-cd goesy-cli
-go build -o goesy.exe .
+cd goeasy-cli
+go build -o goeasy.exe .
 ```
 
 ### 2. 创建项目
 
 ```bat
-.\goesy.exe new greet --module github.com/demo/greet --download=false
+.\goeasy.exe new greet --module github.com/demo/greet --download=false
 ```
 
 说明：
@@ -66,7 +66,7 @@ curl http://127.0.0.1:8080/healthz
 
 ## 生成后的入口长什么样
 
-`cmd/service/main.go` 仅负责装配 goesy：
+`cmd/service/main.go` 仅负责装配 goeasy：
 
 ```go
 cfg := config.MustLoad("configs/config.yaml")
@@ -80,4 +80,4 @@ application.Run()
 ## 下一步
 
 - 理解目录：[04 项目结构](04-project-structure.md)
-- 命令大全：[06 goesy-cli 命令](06-goesy-cli-commands.md)
+- 命令大全：[06 goeasy-cli 命令](06-goeasy-cli-commands.md)

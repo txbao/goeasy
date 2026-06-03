@@ -69,7 +69,7 @@ type App struct {
 
 func New(cfg *config.Config) *App {
 	if cfg == nil {
-		panic("goesy app: config is nil")
+		panic("goeasy app: config is nil")
 	}
 	a := &App{
 		cfg:            cfg,
@@ -85,11 +85,11 @@ func New(cfg *config.Config) *App {
 	var err error
 	a.JWT, err = jwt.New(cfg.Enterprise.JWT)
 	if err != nil {
-		panic(fmt.Sprintf("goesy jwt: %v", err))
+		panic(fmt.Sprintf("goeasy jwt: %v", err))
 	}
 	a.Casbin, err = casbin.New(cfg.Enterprise.Casbin)
 	if err != nil {
-		panic(fmt.Sprintf("goesy casbin: %v", err))
+		panic(fmt.Sprintf("goeasy casbin: %v", err))
 	}
 	a.engine = httpx.NewEngineWith(httpx.Options{
 		Config:  cfg,

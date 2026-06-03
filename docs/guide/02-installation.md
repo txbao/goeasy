@@ -13,22 +13,22 @@
 |------|------|
 | protoc | 编译 `.proto` |
 
-## 方式一：本地编译 goesy-cli（推荐 monorepo 开发）
+## 方式一：本地编译 goeasy-cli（推荐 monorepo 开发）
 
 在框架仓库中进入脚手架目录并编译：
 
 ```bat
-cd goesy-cli
-go build -o goesy.exe .
+cd goeasy-cli
+go build -o goeasy.exe .
 ```
 
 验证：
 
 ```bat
-.\goesy.exe version
+.\goeasy.exe version
 ```
 
-在 Git Bash 中必须使用 `./goesy.exe`，不能直接输入 `goesy.exe`（当前目录不在 PATH 中）。
+在 Git Bash 中必须使用 `./goeasy.exe`，不能直接输入 `goeasy.exe`（当前目录不在 PATH 中）。
 
 ## 方式二：go install 安装
 
@@ -36,15 +36,15 @@ go build -o goesy.exe .
 go install github.com/txbao/goeasy-cli@latest
 ```
 
-安装后命令名为 **`goesy`**（不是 `goesy-cli`）：
+安装后命令名为 **`goeasy`**（不是 `goeasy-cli`）：
 
 ```bat
-goesy version
+goeasy version
 ```
 
 确保 `%USERPROFILE%\go\bin` 已加入系统 PATH。
 
-## 业务项目引用 goesy 运行时
+## 业务项目引用 goeasy 运行时
 
 生成项目的 `go.mod` 会包含：
 
@@ -55,7 +55,7 @@ require github.com/txbao/goeasy v0.2.0
 在 monorepo 内开发时，CLI 会自动添加：
 
 ```text
-replace github.com/txbao/goeasy => <本地 goesy 路径>
+replace github.com/txbao/goeasy => <本地 goeasy 路径>
 ```
 
 详见 [09 Monorepo 与 Module](09-monorepo-and-modules.md)。

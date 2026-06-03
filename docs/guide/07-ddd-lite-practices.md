@@ -82,7 +82,7 @@ func RegisterRoutes(engine *gin.Engine) {
 
 ## 新增业务模块推荐流程
 
-1. `goesy add module <name>`
+1. `goeasy add module <name>`
 2. 实现 `domain/<name>` 实体、聚合、仓储接口
 3. 实现 `infrastructure/persistence/<name>`
 4. 编写 `app/<name>` 的 command/query
@@ -98,7 +98,7 @@ func RegisterRoutes(engine *gin.Engine) {
 
 ## 延伸阅读
 
-- [模板 v2 说明](../plans/goesy-cli-ddd-lite-template-v2.md)
+- [模板 v2 说明](../plans/goeasy-cli-ddd-lite-template-v2.md)
 - 架构规则：仓库 `.rulesync/rules/architecture/`
 
 ## 下一步

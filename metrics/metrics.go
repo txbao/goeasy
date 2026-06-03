@@ -26,11 +26,11 @@ func Init(cfg config.MetricsCfg, service string) {
 	}
 	once.Do(func() {
 		httpTotal = prometheus.NewCounterVec(
-			prometheus.CounterOpts{Name: "goesy_http_requests_total", Help: "HTTP requests"},
+			prometheus.CounterOpts{Name: "goeasy_http_requests_total", Help: "HTTP requests"},
 			[]string{"service", "method", "path", "status"},
 		)
 		httpDur = prometheus.NewHistogramVec(
-			prometheus.HistogramOpts{Name: "goesy_http_duration_ms", Help: "HTTP latency ms"},
+			prometheus.HistogramOpts{Name: "goeasy_http_duration_ms", Help: "HTTP latency ms"},
 			[]string{"service", "method", "path"},
 		)
 		prometheus.MustRegister(httpTotal, httpDur)

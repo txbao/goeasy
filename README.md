@@ -1,6 +1,18 @@
-# goesy
+# goeasy
 
 GoEasy 企业级 Go 微服务运行时框架。开发教程见 [docs/guide](docs/guide/README.md)。
+
+
+## 安装
+
+```bat
+# 1. 安装 goeasy-cli（代码生成工具）
+go install github.com/txbao/goeasy-cli@latest
+goeasy-cli new demo --module github.com/demo/demo --download=false
+cd demo
+go mod tidy
+go run ./cmd/service
+```
 
 ## 快速开始
 
