@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/txbao/goeasy/config"
 )
 
@@ -28,26 +29,37 @@ func Open(cfg config.Redis) (Cache, error) {
 	if cfg.Addr == "" {
 		return nil, errors.New("redis enabled but addr is empty")
 	}
-	return &redisCache{addr: cfg.Addr}, nil
+	client := redis.NewClient(&redis.Options{
+		Addr:     cfg.Addr,
+		Password: cfg.Password,
+		DB:       cfg.DB,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := client.Ping(ctx).Err(); err != nil {
+		_ = client.Close()
+		return nil, err
+	}
+	return &redisCache{client: client}, nil
 }
 
-type redisCache struct{ addr string }
+type redisCache struct {
+	client *redis.Client
+}
 
 func (r *redisCache) Get(ctx context.Context, key string) (string, error) {
-	_ = ctx
-	_ = key
-	return "", errors.New("redis: not connected (stub)")
+	val, err := r.client.Get(ctx, key).Result()
+	if errors.Is(err, redis.Nil) {
+		return "", errors.New("cache: key not found")
+	}
+	return val, err
 }
 
 func (r *redisCache) Set(ctx context.Context, key, value string, ttl time.Duration) error {
-	_ = ctx
-	_ = key
-	_ = value
-	_ = ttl
-	return nil
+	return r.client.Set(ctx, key, value, ttl).Err()
 }
 
-func (r *redisCache) Close() error { return nil }
+func (r *redisCache) Close() error { return r.client.Close() }
 
 type noopCache struct{}
 

@@ -28,6 +28,7 @@ type HTTP struct {
 
 type DB struct {
 	Enabled bool   `yaml:"enabled"`
+	ORM     string `yaml:"orm"` // sqlx | gorm | ent
 	DSN     string `yaml:"dsn"`
 	Driver  string `yaml:"driver"`
 	MaxOpen int    `yaml:"max_open"`
@@ -161,6 +162,9 @@ func applyDefaults(cfg *Config) {
 	}
 	if cfg.DB.Driver == "" {
 		cfg.DB.Driver = "postgres"
+	}
+	if cfg.DB.ORM == "" {
+		cfg.DB.ORM = "sqlx"
 	}
 	if cfg.Governance.Breaker.MaxRequests == 0 {
 		cfg.Governance.Breaker.MaxRequests = 3

@@ -22,19 +22,21 @@ func Open(cfg config.DB) (DB, error) {
 	if cfg.DSN == "" {
 		return nil, errors.New("database enabled but dsn is empty")
 	}
-	return &postgresDB{dsn: cfg.DSN, driver: cfg.Driver}, nil
+	return &postgresDB{dsn: cfg.DSN, driver: cfg.Driver, orm: cfg.ORM}, nil
 }
 
 type postgresDB struct {
 	dsn    string
 	driver string
+	orm    string
 }
 
 func (p *postgresDB) Ping(ctx context.Context) error {
 	if p.dsn == "" {
 		return errors.New("invalid dsn")
 	}
-	// P1: 真实 GORM 连接在后续版本接入；当前校验 DSN 非空即可启动链路。
+	// P1: 按 p.orm（sqlx|gorm|ent）接入真实驱动；当前校验 DSN 非空即可启动链路。
+	_ = p.orm
 	_ = ctx
 	return nil
 }
