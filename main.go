@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/txbao/goeasy/app"
+	app "github.com/txbao/goeasy/app"
 	"github.com/txbao/goeasy/config"
 	zresp "github.com/txbao/goeasy/response"
 )
@@ -18,13 +18,14 @@ func main() {
 		HTTP:    config.HTTP{Host: "0.0.0.0", Port: 8080},
 	}
 	application := app.New(cfg)
-	application.RegisterHTTP(func(engine *gin.Engine) {
+	application.RegisterHTTP(func(engine *gin.Engine, _ app.HTTPInfra) error {
 		engine.GET("/", func(c *gin.Context) {
 			zresp.Success(c, gin.H{"message": "Welcome to goeasy"})
 		})
 		engine.GET("/health", func(c *gin.Context) {
 			zresp.Success(c, gin.H{"status": "healthy"})
 		})
+		return nil
 	})
 	if err := application.Run(); err != nil {
 		log.Fatal(err)

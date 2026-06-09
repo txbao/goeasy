@@ -9,10 +9,16 @@ import (
 	"github.com/txbao/goeasy/config"
 )
 
+// ErrNotFound 缓存未命中（与 Redis Nil 区分，供仓储 cache-aside）。
+var ErrNotFound = errors.New("cache: key not found")
+
 // Cache Redis 抽象。
 type Cache interface {
 	Get(ctx context.Context, key string) (string, error)
 	Set(ctx context.Context, key, value string, ttl time.Duration) error
+	GetBytes(ctx context.Context, key string) ([]byte, error)
+	SetBytes(ctx context.Context, key string, value []byte, ttl time.Duration) error
+	Del(ctx context.Context, keys ...string) error
 	Close() error
 }
 
@@ -50,13 +56,32 @@ type redisCache struct {
 func (r *redisCache) Get(ctx context.Context, key string) (string, error) {
 	val, err := r.client.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return "", errors.New("cache: key not found")
+		return "", ErrNotFound
 	}
 	return val, err
 }
 
 func (r *redisCache) Set(ctx context.Context, key, value string, ttl time.Duration) error {
 	return r.client.Set(ctx, key, value, ttl).Err()
+}
+
+func (r *redisCache) GetBytes(ctx context.Context, key string) ([]byte, error) {
+	val, err := r.client.Get(ctx, key).Bytes()
+	if errors.Is(err, redis.Nil) {
+		return nil, ErrNotFound
+	}
+	return val, err
+}
+
+func (r *redisCache) SetBytes(ctx context.Context, key string, value []byte, ttl time.Duration) error {
+	return r.client.Set(ctx, key, value, ttl).Err()
+}
+
+func (r *redisCache) Del(ctx context.Context, keys ...string) error {
+	if len(keys) == 0 {
+		return nil
+	}
+	return r.client.Del(ctx, keys...).Err()
 }
 
 func (r *redisCache) Close() error { return r.client.Close() }
@@ -68,13 +93,30 @@ func NewNoop() Cache { return &noopCache{} }
 func (n *noopCache) Get(ctx context.Context, key string) (string, error) {
 	_ = ctx
 	_ = key
-	return "", errors.New("cache: noop")
+	return "", ErrNotFound
 }
 func (n *noopCache) Set(ctx context.Context, key, value string, ttl time.Duration) error {
 	_ = ctx
 	_ = key
 	_ = value
 	_ = ttl
+	return nil
+}
+func (n *noopCache) GetBytes(ctx context.Context, key string) ([]byte, error) {
+	_ = ctx
+	_ = key
+	return nil, ErrNotFound
+}
+func (n *noopCache) SetBytes(ctx context.Context, key string, value []byte, ttl time.Duration) error {
+	_ = ctx
+	_ = key
+	_ = value
+	_ = ttl
+	return nil
+}
+func (n *noopCache) Del(ctx context.Context, keys ...string) error {
+	_ = ctx
+	_ = keys
 	return nil
 }
 func (n *noopCache) Close() error { return nil }

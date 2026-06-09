@@ -4,20 +4,27 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-
-	"github.com/txbao/goeasy/config"
+	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 type ctxKey struct{}
 
-// Span 链路追踪占位（P3 可换 OpenTelemetry SDK）。
+// Span 链路追踪元数据（兼容本地与 OTel）。
 type Span struct {
 	TraceID string
 	SpanID  string
 	Name    string
 }
 
+// Start 开始 span；OTLP 启用时导出到 Collector，否则仅本地 trace_id。
 func Start(ctx context.Context, name string) (context.Context, func()) {
+	if otelEnabled {
+		return startOTel(ctx, name)
+	}
+	return startLocal(ctx, name)
+}
+
+func startLocal(ctx context.Context, name string) (context.Context, func()) {
 	span := Span{
 		TraceID: traceIDFromCtx(ctx),
 		SpanID:  uuid.NewString(),
@@ -31,6 +38,9 @@ func Start(ctx context.Context, name string) (context.Context, func()) {
 }
 
 func traceIDFromCtx(ctx context.Context) string {
+	if sc := oteltrace.SpanFromContext(ctx).SpanContext(); sc.HasTraceID() {
+		return sc.TraceID().String()
+	}
 	if v, ok := ctx.Value(ctxKey{}).(Span); ok {
 		return v.TraceID
 	}
@@ -39,12 +49,5 @@ func traceIDFromCtx(ctx context.Context) string {
 
 // TraceID 从 context 读取 trace_id。
 func TraceID(ctx context.Context) string {
-	if v, ok := ctx.Value(ctxKey{}).(Span); ok {
-		return v.TraceID
-	}
-	return ""
-}
-
-func Init(cfg config.TraceCfg) {
-	_ = cfg
+	return traceIDFromCtx(ctx)
 }

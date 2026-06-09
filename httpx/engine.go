@@ -1,15 +1,13 @@
 package httpx
 
 import (
-	"log"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"github.com/txbao/goeasy/config"
 	"github.com/txbao/goeasy/health"
 	"github.com/txbao/goeasy/limiter"
+	"github.com/txbao/goeasy/logger"
 	"github.com/txbao/goeasy/metrics"
 	"github.com/txbao/goeasy/trace"
 )
@@ -17,6 +15,7 @@ import (
 // Options httpx 引擎选项。
 type Options struct {
 	Config  *config.Config
+	Logger  *logger.Logger
 	Limiter *limiter.Limiter
 	Health  *health.Registry
 }
@@ -38,6 +37,9 @@ func NewEngineWith(opt Options) *gin.Engine {
 	}
 	engine := gin.New()
 	engine.Use(gin.Recovery())
+	if cfg != nil {
+		engine.Use(CORSMiddleware(cfg.HTTP.CORS))
+	}
 	engine.Use(requestID())
 	engine.Use(traceMiddleware())
 	if opt.Limiter != nil {
@@ -50,7 +52,11 @@ func NewEngineWith(opt Options) *gin.Engine {
 		engine.Use(metrics.GinMiddleware(service))
 		metrics.RegisterRoute(engine, cfg.Observability.Metrics.Path)
 	}
-	engine.Use(accessLog(cfg))
+	if opt.Logger != nil {
+		engine.Use(SlogAccessLog(opt.Logger))
+	} else {
+		engine.Use(SlogAccessLog(logger.New(cfg)))
+	}
 	if cfg != nil && cfg.Observability.Health.Enabled {
 		health.RegisterRoutes(engine, cfg.Observability.Health, opt.Health)
 	}
@@ -78,17 +84,3 @@ func traceMiddleware() gin.HandlerFunc {
 	}
 }
 
-func accessLog(cfg *config.Config) gin.HandlerFunc {
-	service := "goeasy"
-	if cfg != nil && cfg.AppName != "" {
-		service = cfg.AppName
-	}
-	return func(c *gin.Context) {
-		start := time.Now()
-		c.Next()
-		log.Printf(`{"service":%q,"method":%q,"path":%q,"status":%d,"latency_ms":%d,"request_id":%q,"trace_id":%q}`,
-			service, c.Request.Method, c.Request.URL.Path, c.Writer.Status(),
-			time.Since(start).Milliseconds(), c.GetString("request_id"),
-			trace.TraceID(c.Request.Context()))
-	}
-}

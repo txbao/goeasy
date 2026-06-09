@@ -3,6 +3,7 @@ package mq
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/txbao/goeasy/config"
 )
@@ -18,32 +19,17 @@ func Open(cfg config.MQ) (MQ, error) {
 	if !cfg.Enabled {
 		return NewNoop(), nil
 	}
-	if cfg.Addr == "" {
-		return nil, errors.New("mq enabled but addr is empty")
+	typ := strings.ToLower(strings.TrimSpace(cfg.Type))
+	if typ == "" {
+		typ = "nsq"
 	}
-	return &nsqMQ{addr: cfg.Addr, typ: cfg.Type}, nil
+	switch typ {
+	case "nsq":
+		return openNSQ(cfg)
+	default:
+		return nil, errors.New("mq: unsupported type " + typ)
+	}
 }
-
-type nsqMQ struct {
-	addr string
-	typ  string
-}
-
-func (n *nsqMQ) Publish(ctx context.Context, topic string, body []byte) error {
-	_ = ctx
-	_ = topic
-	_ = body
-	return nil
-}
-
-func (n *nsqMQ) Subscribe(ctx context.Context, topic string, handler func(ctx context.Context, body []byte) error) error {
-	_ = ctx
-	_ = topic
-	_ = handler
-	return nil
-}
-
-func (n *nsqMQ) Close() error { return nil }
 
 type noopMQ struct{}
 
@@ -55,10 +41,12 @@ func (n *noopMQ) Publish(ctx context.Context, topic string, body []byte) error {
 	_ = body
 	return nil
 }
+
 func (n *noopMQ) Subscribe(ctx context.Context, topic string, handler func(ctx context.Context, body []byte) error) error {
 	_ = ctx
 	_ = topic
 	_ = handler
 	return nil
 }
+
 func (n *noopMQ) Close() error { return nil }

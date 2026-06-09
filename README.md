@@ -1,6 +1,6 @@
 # goeasy
 
-GoEasy 企业级 Go 微服务运行时框架。开发教程见 [docs/guide](docs/guide/README.md)。
+GoEasy 企业级 Go 微服务运行时框架。开发教程见 [goeasy-cli/docs](../goeasy-cli/docs/guide/README.md)（GitBook 同步源）。
 
 
 ## 安装
@@ -55,7 +55,10 @@ enterprise:
 
 ## 开发指引
 
-- [docs/guide/README.md](docs/guide/README.md)
+- [GoEasy 开发文档](../goeasy-cli/docs/guide/README.md)（权威）
+- [实体缓存](../goeasy-cli/docs/runtime/entity-cache.md)
+- [HTTP 中间件](../goeasy-cli/docs/runtime/http-middleware.md)
+- [gRPC 与服务发现](../goeasy-cli/docs/runtime/grpc-discovery.md)；业务 proto 见 [11 gRPC 项目集成](../goeasy-cli/docs/guide/11-grpc-internal.md)
 
 ## 废弃
 

@@ -2,6 +2,8 @@ package casbin
 
 import (
 	"errors"
+	"os"
+	"strings"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
@@ -18,11 +20,24 @@ func New(cfg config.CasbinCfg) (*Enforcer, error) {
 	if !cfg.Enabled {
 		return nil, nil
 	}
-	m, err := model.NewModelFromString(defaultModel)
+	modelText := defaultModel
+	if cfg.Model != "" {
+		if b, err := os.ReadFile(cfg.Model); err == nil {
+			modelText = string(b)
+		} else if strings.Contains(cfg.Model, "[") {
+			modelText = cfg.Model
+		}
+	}
+	m, err := model.NewModelFromString(modelText)
 	if err != nil {
 		return nil, err
 	}
-	e, err := casbin.NewEnforcer(m)
+	var e *casbin.Enforcer
+	if cfg.Policy != "" {
+		e, err = casbin.NewEnforcer(m, cfg.Policy)
+	} else {
+		e, err = casbin.NewEnforcer(m)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -34,6 +49,13 @@ func (e *Enforcer) Check(sub, obj, act string) (bool, error) {
 		return false, errors.New("casbin disabled")
 	}
 	return e.inner.Enforce(sub, obj, act)
+}
+
+func (e *Enforcer) Inner() *casbin.Enforcer {
+	if e == nil {
+		return nil
+	}
+	return e.inner
 }
 
 const defaultModel = `
