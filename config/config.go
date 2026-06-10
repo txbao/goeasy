@@ -90,13 +90,13 @@ type SchedulerCfg struct {
 }
 
 type MQ struct {
-	Enabled     bool       `yaml:"enabled"`
-	Type        string     `yaml:"type"`         // nsq
-	Addr        string     `yaml:"addr"`         // 兼容旧字段，Producer 回退地址
-	NSQDAddr    string     `yaml:"nsqd_addr"`    // Producer 直连 nsqd
-	LookupdAddr string     `yaml:"lookupd_addr"` // Consumer lookupd
-	Channel     string     `yaml:"channel"`      // 消费 channel，默认 default
-	Outbox      OutboxCfg  `yaml:"outbox"`       // 事务发件箱，默认关闭
+	Enabled     bool      `yaml:"enabled"`
+	Type        string    `yaml:"type"`         // nsq
+	Addr        string    `yaml:"addr"`         // 兼容旧字段，Producer 回退地址
+	NSQDAddr    string    `yaml:"nsqd_addr"`    // Producer 直连 nsqd
+	LookupdAddr string    `yaml:"lookupd_addr"` // Consumer lookupd
+	Channel     string    `yaml:"channel"`      // 消费 channel，默认 default
+	Outbox      OutboxCfg `yaml:"outbox"`       // 事务发件箱，默认关闭
 }
 
 // OutboxCfg MQ 事务一致性（Outbox 模式）。
@@ -141,7 +141,7 @@ type GRPC struct {
 
 // Discovery 服务发现（direct 静态地址 | etcd）。
 type Discovery struct {
-	Mode     string            `yaml:"mode"`     // direct | etcd
+	Mode     string            `yaml:"mode"` // direct | etcd
 	Etcd     EtcdDiscoveryCfg  `yaml:"etcd"`
 	Services map[string]string `yaml:"services"` // direct：逻辑服务名 -> host:port
 }
@@ -151,9 +151,9 @@ type EtcdDiscoveryCfg struct {
 	Enabled        bool     `yaml:"enabled"`
 	Endpoints      []string `yaml:"endpoints"`
 	DialTimeoutSec int      `yaml:"dial_timeout_sec"`
-	LeaseTTLSec    int      `yaml:"lease_ttl_sec"`   // 租约 TTL，默认 30；KeepAlive 保活至进程退出
+	LeaseTTLSec    int      `yaml:"lease_ttl_sec"`  // 租约 TTL，默认 30；KeepAlive 保活至进程退出
 	AdvertiseAddr  string   `yaml:"advertise_addr"` // 注册到 etcd 的可达地址，空则回退 services[app_name] 或监听地址
-	Prefix         string   `yaml:"prefix"`          // 默认 /goeasy/services
+	Prefix         string   `yaml:"prefix"`         // 默认 /goeasy/services
 }
 
 // Governance P2 微服务治理配置。
@@ -172,7 +172,7 @@ type BreakerCfg struct {
 
 type LimiterCfg struct {
 	Enabled    bool     `yaml:"enabled"`
-	Mode       string   `yaml:"mode"`       // local | redis | both
+	Mode       string   `yaml:"mode"` // local | redis | both
 	QPS        float64  `yaml:"qps"`
 	Burst      int      `yaml:"burst"`
 	Dimensions []string `yaml:"dimensions"` // global, ip, user
@@ -249,9 +249,9 @@ type Enterprise struct {
 
 // APISignCfg 开放平台 RSA2 签名验签（见 api-sign.md）。
 type APISignCfg struct {
-	Enabled         bool                      `yaml:"enabled"`
-	TimestampSkewMs int64                     `yaml:"timestamp_skew_ms"`
-	Apps            map[string]APISignAppCfg  `yaml:"apps"`
+	Enabled         bool                     `yaml:"enabled"`
+	TimestampSkewMs int64                    `yaml:"timestamp_skew_ms"`
+	Apps            map[string]APISignAppCfg `yaml:"apps"`
 }
 
 // APISignAppCfg 接入方公钥。
@@ -432,7 +432,7 @@ func applyDefaults(cfg *Config) {
 		cfg.Cache.TTLJitter = 0.1
 	}
 	if cfg.MQ.Outbox.Table == "" {
-		cfg.MQ.Outbox.Table = "goeasy_outbox"
+		cfg.MQ.Outbox.Table = "_outbox"
 	}
 	if cfg.MQ.Outbox.PollInterval == "" {
 		cfg.MQ.Outbox.PollInterval = "5s"
@@ -462,11 +462,11 @@ func (c *Config) TraceService() string {
 // OutboxTable 返回带 table_prefix 的 outbox 表名。
 func (c *Config) OutboxTable() string {
 	if c == nil {
-		return "goeasy_outbox"
+		return "_outbox"
 	}
 	t := c.MQ.Outbox.Table
 	if t == "" {
-		t = "goeasy_outbox"
+		t = "_outbox"
 	}
 	if p := c.DB.TablePrefix; p != "" {
 		return p + t
