@@ -9,6 +9,7 @@ import (
 	"github.com/txbao/goeasy/limiter"
 	"github.com/txbao/goeasy/logger"
 	"github.com/txbao/goeasy/metrics"
+	"github.com/txbao/goeasy/response"
 	"github.com/txbao/goeasy/trace"
 )
 
@@ -52,11 +53,21 @@ func NewEngineWith(opt Options) *gin.Engine {
 		engine.Use(metrics.GinMiddleware(service))
 		metrics.RegisterRoute(engine, cfg.Observability.Metrics.Path)
 	}
-	if opt.Logger != nil {
-		engine.Use(SlogAccessLog(opt.Logger))
-	} else {
-		engine.Use(SlogAccessLog(logger.New(cfg)))
+	log := opt.Logger
+	if log == nil {
+		log = logger.New(cfg)
 	}
+	respOpt := response.Options{
+		Logger:          log,
+		LogServerErrors: true,
+	}
+	if cfg != nil {
+		respOpt.Env = cfg.Env
+		respOpt.LogServerErrors = httpLogServerErrors(cfg)
+		respOpt.ExposeErrorDetail = cfg.Observability.HTTP.ExposeErrorDetail
+	}
+	response.Configure(respOpt)
+	engine.Use(SlogAccessLog(log))
 	if cfg != nil && cfg.Observability.Health.Enabled {
 		health.RegisterRoutes(engine, cfg.Observability.Health, opt.Health)
 	}
@@ -73,6 +84,13 @@ func requestID() gin.HandlerFunc {
 		c.Header("X-Request-ID", id)
 		c.Next()
 	}
+}
+
+func httpLogServerErrors(cfg *config.Config) bool {
+	if cfg == nil || cfg.Observability.HTTP.LogServerErrors == nil {
+		return true
+	}
+	return *cfg.Observability.HTTP.LogServerErrors
 }
 
 func traceMiddleware() gin.HandlerFunc {

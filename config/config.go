@@ -187,12 +187,19 @@ type RetryCfg struct {
 // Observability P3 观测配置。
 type Observability struct {
 	Logger  LoggerCfg  `yaml:"logger"`
+	HTTP    HTTPCfg    `yaml:"http"`
 	SQL     SQLCfg     `yaml:"sql"`
 	Trace   TraceCfg   `yaml:"trace"`
 	Metrics MetricsCfg `yaml:"metrics"`
 	Audit   AuditCfg   `yaml:"audit"`
 	Health  HealthCfg  `yaml:"health"`
 	MQ      MQLogCfg   `yaml:"mq"`
+}
+
+// HTTPCfg HTTP 错误日志与响应脱敏（可选；省略时用 env 默认）。
+type HTTPCfg struct {
+	LogServerErrors   *bool `yaml:"log_server_errors"`   // default true
+	ExposeErrorDetail *bool `yaml:"expose_error_detail"` // nil=按 env；dev 暴露 err 详情
 }
 
 // LoggerCfg 结构化日志。

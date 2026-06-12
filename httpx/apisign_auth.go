@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/txbao/goeasy/apisign"
+	zerr "github.com/txbao/goeasy/errors"
 	"github.com/txbao/goeasy/response"
 )
 
@@ -15,7 +16,7 @@ import (
 func RequireAPISign(verifier *apisign.Verifier) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if verifier == nil {
-			response.Fail(c, http.StatusServiceUnavailable, "api_sign not enabled")
+			response.FailBiz(c, http.StatusServiceUnavailable, int(zerr.BizCodeServiceUnavail), "api_sign not enabled")
 			c.Abort()
 			return
 		}
@@ -23,7 +24,7 @@ func RequireAPISign(verifier *apisign.Verifier) gin.HandlerFunc {
 		if c.Request.Body != nil {
 			b, err := io.ReadAll(c.Request.Body)
 			if err != nil {
-				response.Fail(c, http.StatusBadRequest, "read body failed")
+				response.FailBiz(c, http.StatusBadRequest, int(zerr.BizCodeParamInvalid), "read body failed")
 				c.Abort()
 				return
 			}
@@ -31,7 +32,7 @@ func RequireAPISign(verifier *apisign.Verifier) gin.HandlerFunc {
 			c.Request.Body = io.NopCloser(bytes.NewReader(body))
 		}
 		if err := verifier.VerifyRequest(c.Request, body); err != nil {
-			response.Fail(c, http.StatusUnauthorized, err.Error())
+			response.FailBiz(c, http.StatusUnauthorized, int(zerr.BizCodeAuthMissing), err.Error())
 			c.Abort()
 			return
 		}

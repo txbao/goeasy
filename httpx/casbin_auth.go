@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/txbao/goeasy/casbin"
+	zerr "github.com/txbao/goeasy/errors"
 	"github.com/txbao/goeasy/response"
 )
 
@@ -13,7 +14,7 @@ import (
 func RequireCasbin(enforcer *casbin.Enforcer, obj, act string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if enforcer == nil {
-			response.Fail(c, http.StatusServiceUnavailable, "casbin not enabled")
+			response.FailBiz(c, http.StatusServiceUnavailable, int(zerr.BizCodeServiceUnavail), "casbin not enabled")
 			c.Abort()
 			return
 		}
@@ -25,18 +26,18 @@ func RequireCasbin(enforcer *casbin.Enforcer, obj, act string) gin.HandlerFunc {
 			}
 		}
 		if subject == "" {
-			response.Fail(c, http.StatusUnauthorized, "missing subject")
+			response.FailBiz(c, http.StatusUnauthorized, int(zerr.BizCodeAuthMissing), "missing subject")
 			c.Abort()
 			return
 		}
 		ok, err := enforcer.Check(subject, obj, act)
 		if err != nil {
-			response.Fail(c, http.StatusInternalServerError, err.Error())
+			response.FailInternal(c, err)
 			c.Abort()
 			return
 		}
 		if !ok {
-			response.Fail(c, http.StatusForbidden, "permission denied")
+			response.FailBiz(c, http.StatusForbidden, int(zerr.BizCodeForbidden), "permission denied")
 			c.Abort()
 			return
 		}

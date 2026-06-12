@@ -15,6 +15,14 @@ type Logger struct {
 	inner *slog.Logger
 }
 
+// NewFromSlog 从已有 slog.Logger 构造（测试或自定义 Handler 注入）。
+func NewFromSlog(l *slog.Logger) *Logger {
+	if l == nil {
+		return New(nil)
+	}
+	return &Logger{inner: l}
+}
+
 func New(cfg *config.Config) *Logger {
 	lc := config.LoggerCfg{}
 	service := "goeasy"

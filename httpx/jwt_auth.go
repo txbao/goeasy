@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	zerr "github.com/txbao/goeasy/errors"
 	"github.com/txbao/goeasy/jwt"
 	"github.com/txbao/goeasy/response"
 )
@@ -17,13 +18,13 @@ func RequireJWT(token *jwt.Token, header string) gin.HandlerFunc {
 	}
 	return func(c *gin.Context) {
 		if token == nil {
-			response.Fail(c, http.StatusServiceUnavailable, "jwt not enabled")
+			response.FailBiz(c, http.StatusServiceUnavailable, int(zerr.BizCodeServiceUnavail), "jwt not enabled")
 			c.Abort()
 			return
 		}
 		raw := c.GetHeader(header)
 		if raw == "" {
-			response.Fail(c, http.StatusUnauthorized, "missing authorization")
+			response.FailBiz(c, http.StatusUnauthorized, int(zerr.BizCodeAuthMissing), "missing authorization")
 			c.Abort()
 			return
 		}
@@ -32,7 +33,7 @@ func RequireJWT(token *jwt.Token, header string) gin.HandlerFunc {
 		}
 		claims, err := token.Parse(raw)
 		if err != nil {
-			response.Fail(c, http.StatusUnauthorized, "invalid token")
+			response.FailBiz(c, http.StatusUnauthorized, int(zerr.BizCodeAuthMissing), "invalid token")
 			c.Abort()
 			return
 		}

@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -19,15 +20,21 @@ func SlogAccessLog(log *logger.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		c.Next()
-		inner.Slog().Info("http_access",
+		status := c.Writer.Status()
+		attrs := []any{
 			"method", c.Request.Method,
 			"path", c.Request.URL.Path,
-			"status", c.Writer.Status(),
+			"status", status,
 			"latency_ms", time.Since(start).Milliseconds(),
 			"request_id", c.GetString("request_id"),
 			"trace_id", trace.TraceID(c.Request.Context()),
 			"client_ip", c.ClientIP(),
 			"user_id", contextx.UserID(c.Request.Context()),
-		)
+		}
+		if status >= http.StatusInternalServerError {
+			inner.Slog().Warn("http_access", attrs...)
+		} else {
+			inner.Slog().Info("http_access", attrs...)
+		}
 	}
 }
