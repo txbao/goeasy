@@ -38,6 +38,8 @@ func RequireJWT(token *jwt.Token, header string) gin.HandlerFunc {
 			return
 		}
 		c.Set("jwt_subject", claims.Subject)
+		c.Set("jwt_customer_id", claims.CustomerID)
+		c.Set("jwt_platform_admin", claims.PlatformAdmin)
 		c.Set("jwt_claims", claims)
 		c.Next()
 	}

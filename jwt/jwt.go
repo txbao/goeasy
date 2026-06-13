@@ -17,8 +17,17 @@ type Token struct {
 }
 
 type Claims struct {
-	Subject string `json:"sub"`
+	Subject       string `json:"sub"`
+	CustomerID    int64  `json:"cid,omitempty"`
+	PlatformAdmin bool   `json:"pla,omitempty"`
 	jwtv5.RegisteredClaims
+}
+
+// Session 登录会话声明，用于签发带租户上下文的 Token。
+type Session struct {
+	Subject       string
+	CustomerID    int64
+	PlatformAdmin bool
 }
 
 func New(cfg config.JWTCfg) (*Token, error) {
@@ -40,12 +49,23 @@ func New(cfg config.JWTCfg) (*Token, error) {
 }
 
 func (t *Token) Generate(subject string) (string, error) {
+	return t.GenerateSession(Session{Subject: subject})
+}
+
+// GenerateSession 签发 JWT；subject 写入 sub，可选携带 customer_id 与平台管理员标记。
+func (t *Token) GenerateSession(sess Session) (string, error) {
 	if t == nil {
 		return "", errors.New("jwt disabled")
 	}
+	subject := sess.Subject
+	if subject == "" {
+		return "", errors.New("jwt subject is required")
+	}
 	now := time.Now()
 	claims := Claims{
-		Subject: subject,
+		Subject:       subject,
+		CustomerID:    sess.CustomerID,
+		PlatformAdmin: sess.PlatformAdmin,
 		RegisteredClaims: jwtv5.RegisteredClaims{
 			Issuer:    t.issuer,
 			Subject:   subject,
