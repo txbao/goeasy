@@ -237,7 +237,28 @@ type MetricsCfg struct {
 }
 
 type AuditCfg struct {
-	Enabled bool `yaml:"enabled"`
+	Enabled       bool     `yaml:"enabled"`
+	AsyncEnabled  bool     `yaml:"async_enabled"`
+	BufferSize    int      `yaml:"buffer_size"`
+	MaskPhone     *bool    `yaml:"mask_phone"`
+	MaskLoginID   *bool    `yaml:"mask_login_id"`
+	SensitiveKeys []string `yaml:"sensitive_keys"`
+}
+
+// MaskPhoneEnabled 是否脱敏手机号（默认 true）。
+func (a AuditCfg) MaskPhoneEnabled() bool {
+	if a.MaskPhone == nil {
+		return true
+	}
+	return *a.MaskPhone
+}
+
+// MaskLoginIDEnabled 是否脱敏登录标识（默认 true）。
+func (a AuditCfg) MaskLoginIDEnabled() bool {
+	if a.MaskLoginID == nil {
+		return true
+	}
+	return *a.MaskLoginID
 }
 
 type HealthCfg struct {
@@ -449,6 +470,9 @@ func applyDefaults(cfg *Config) {
 	}
 	if cfg.MQ.Outbox.MaxRetries == 0 {
 		cfg.MQ.Outbox.MaxRetries = 5
+	}
+	if cfg.Observability.Audit.BufferSize == 0 {
+		cfg.Observability.Audit.BufferSize = 256
 	}
 }
 

@@ -9,7 +9,7 @@ import (
 	"github.com/txbao/goeasy/config"
 )
 
-// Record 审计记录（无业务实体）。
+// Record 运维审计记录（JSON stdout，无业务实体）。
 type Record struct {
 	Operator  string         `json:"operator"`
 	Action    string         `json:"action"`
@@ -20,7 +20,7 @@ type Record struct {
 	Timestamp time.Time      `json:"timestamp"`
 }
 
-// Logger 审计日志写入。
+// Logger 运维 JSON 审计日志写入。
 type Logger struct {
 	inner *slog.Logger
 }
@@ -44,5 +44,8 @@ func (l *Logger) Record(ctx context.Context, rec Record) {
 		"action", rec.Action,
 		"resource", rec.Resource,
 		"ip", rec.IP,
+		"old_value", rec.OldValue,
+		"new_value", rec.NewValue,
+		"timestamp", rec.Timestamp.UTC().Format(time.RFC3339),
 	)
 }

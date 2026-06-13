@@ -63,6 +63,8 @@ type HTTPInfra struct {
 
 	GRPCClientForService func(context.Context, string) (*grpcx.Client, error)
 	RPC                  *grpcx.Registry // 长连接 RPC 客户端池（bootstrap / Gateway 使用）
+
+	AuditRecorder audit.Recorder // 业务操作日志 Port（默认 NopRecorder）
 }
 
 // HTTPRegister 业务 HTTP 路由注册函数；返回 error 时 Run 中止启动（不监听 HTTP）。
@@ -103,6 +105,10 @@ type App struct {
 	HealthReg *health.Registry
 	Audit     *audit.Logger
 
+	// 业务操作日志 Recorder（默认 Nop；bootstrap 可通过 SetAuditRecorder 注入 PG 实现）
+	auditRecorder         audit.Recorder
+	auditRecorderRuntime  audit.Recorder
+
 	// P4
 	IDGen      *idgen.Generator
 	JWT        *jwt.Token // 管理后台
@@ -125,6 +131,7 @@ func New(cfg *config.Config) *App {
 		Limiter:        limiter.New(cfg.Governance.Limiter),
 		HealthReg:      health.NewRegistry(),
 		Audit:          audit.New(cfg.Observability.Audit),
+		auditRecorder:  audit.NopRecorder{},
 		IDGen:          idgen.New(cfg.Enterprise.IDGen),
 	}
 	if err := trace.Init(cfg.Observability.Trace, cfg.AppName); err != nil {
@@ -174,6 +181,14 @@ func (a *App) RegisterGRPC(reg GRPCRegister) *App {
 // RegisterConsumer 注册 MQ 消费者（cmd/consumer 独立进程使用）。
 func (a *App) RegisterConsumer(reg ConsumerRegister) *App {
 	a.consumerReg = reg
+	return a
+}
+
+// SetAuditRecorder 注入业务操作日志持久化实现（在 Run 前调用）。
+func (a *App) SetAuditRecorder(r audit.Recorder) *App {
+	if r != nil {
+		a.auditRecorder = r
+	}
 	return a
 }
 
@@ -340,6 +355,7 @@ func (a *App) Run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	a.log.Infof("shutting down...")
+	a.closeAuditRecorder()
 	if err := trace.Shutdown(ctx); err != nil {
 		a.log.Infof("trace shutdown: %v", err)
 	}
@@ -364,6 +380,7 @@ func (a *App) Run() error {
 
 func (a *App) buildHTTPInfra() HTTPInfra {
 	locker := cache.NewRedisLocker(cache.RedisClient(a.Cache), a.cfg.RedisKeyPrefix())
+	a.auditRecorderRuntime = audit.BuildRecorder(a.cfg.Observability.Audit, a.auditRecorder)
 	return HTTPInfra{
 		DB:                 a.DB,
 		DBDriver:           a.cfg.DB.Driver,
@@ -388,6 +405,16 @@ func (a *App) buildHTTPInfra() HTTPInfra {
 			return a.NewGRPCClientForService(ctx, service)
 		},
 		RPC: a.GRPCRegistry,
+		AuditRecorder: a.auditRecorderRuntime,
+	}
+}
+
+func (a *App) closeAuditRecorder() {
+	if a == nil || a.auditRecorderRuntime == nil {
+		return
+	}
+	if c, ok := a.auditRecorderRuntime.(interface{ Close() }); ok {
+		c.Close()
 	}
 }
 

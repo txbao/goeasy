@@ -4,6 +4,13 @@
 
 ### Added
 
+- `contextx`：操作人上下文扩展（`CustomerID`、`PlatformAdmin`、`LoginID`、`RequestID`、`ClientIP`、`DeviceInfo`、`OperatorContext`）
+- `httpx.InjectOperatorContext`：JWT / 请求元数据写入 `context.Context`
+- `audit.Recorder`：业务操作日志持久化 Port（`Entry`、`NopRecorder`）
+- `audit.RedactMap` / `audit.BuildChangeSummary`：脱敏与变更摘要工具
+- `audit.AsyncRecorder` / `audit.MultiRecorder`：异步与组合写入
+- `config.observability.audit` 扩展：`async_enabled`、`buffer_size`、`mask_phone`、`mask_login_id`、`sensitive_keys`
+- `app.SetAuditRecorder` / `HTTPInfra.AuditRecorder`：业务注入 DB 实现
 - `response.FailBiz`：HTTP Status 与 6 位 `body.code` 分离（CSDS §9）
 - `response.FailInternal`：未映射内部错误兜底（`500001`），prod 响应脱敏
 - `response.Configure` / `SetLogger` / `SetEnv`：httpx 启动时注入 logger 与环境
@@ -13,6 +20,8 @@
 
 ### Changed
 
+- `audit.Logger.Record` 完整输出 `old_value` / `new_value` / `timestamp`
+- `httpx.SlogAccessLog` 补充 `customer_id`，从 `contextx` 读取请求元数据
 - `httpx` 鉴权中间件（JWT/Casbin/APISign）迁移 `FailBiz` / `FailInternal`
 - 访问日志 `status >= 500` 升为 `Warn`
 

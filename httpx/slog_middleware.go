@@ -21,15 +21,17 @@ func SlogAccessLog(log *logger.Logger) gin.HandlerFunc {
 		start := time.Now()
 		c.Next()
 		status := c.Writer.Status()
+		ctx := c.Request.Context()
 		attrs := []any{
 			"method", c.Request.Method,
 			"path", c.Request.URL.Path,
 			"status", status,
 			"latency_ms", time.Since(start).Milliseconds(),
-			"request_id", c.GetString("request_id"),
-			"trace_id", trace.TraceID(c.Request.Context()),
-			"client_ip", c.ClientIP(),
-			"user_id", contextx.UserID(c.Request.Context()),
+			"request_id", contextx.RequestID(ctx),
+			"trace_id", trace.TraceID(ctx),
+			"client_ip", contextx.ClientIP(ctx),
+			"user_id", contextx.UserID(ctx),
+			"customer_id", contextx.CustomerID(ctx),
 		}
 		if status >= http.StatusInternalServerError {
 			inner.Slog().Warn("http_access", attrs...)

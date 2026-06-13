@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
+	"github.com/txbao/goeasy/contextx"
 	"github.com/txbao/goeasy/config"
 	"github.com/txbao/goeasy/health"
 	"github.com/txbao/goeasy/limiter"
@@ -82,6 +83,8 @@ func requestID() gin.HandlerFunc {
 		}
 		c.Set("request_id", id)
 		c.Header("X-Request-ID", id)
+		ctx := contextx.WithRequestID(c.Request.Context(), id)
+		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
 }

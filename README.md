@@ -31,7 +31,14 @@ application.Run()
 | P1 基础设施 | database, cache, mq, grpcx, discovery, storage, scheduler |
 | P2 治理 | breaker, limiter, retry, loadbalance |
 | P3 观测 | trace, metrics, health, audit |
-| P4 企业组件 | errors, validator, pagination, idgen, contextx, jwt, casbin, crypto |
+| P4 企业组件 | errors, validator, pagination, idgen, contextx, jwt, casbin, crypto, apisign, eventbus |
+
+### 操作日志（audit）
+
+- **运维 JSON**：`observability.audit.enabled` → `app.Audit`（stdout）
+- **业务持久化**：实现 `audit.Recorder`，`app.SetAuditRecorder(...)` 注入
+- **上下文**：`httpx.InjectOperatorContext` + `contextx.OperatorFrom`
+- 详见 [audit/README.md](audit/README.md)
 
 ## 配置示例
 
